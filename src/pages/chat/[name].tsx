@@ -156,7 +156,7 @@ const ChatPage: React.FC = () => {
                 msg.sender === 'me' ? 'bg-[#005c4b]' : 'bg-[#202c33]'
               }`}
             >
-              {msg.text} {keyboardHeight}
+              {msg.text}
               <div className="mt-1 text-right text-xs text-[#8696a0]">
                 {msg.time}
               </div>
