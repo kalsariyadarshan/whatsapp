@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable tailwindcss/migration-from-tailwind-2 */
-/* eslint-disable import/no-extraneous-dependencies */
 import {
   ArrowLeft,
   Camera,
@@ -13,7 +12,7 @@ import {
   Video,
 } from 'lucide-react';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Message {
   text: string;
@@ -23,9 +22,35 @@ interface Message {
 
 const ChatPage: React.FC = () => {
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const { name } = router.query;
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>('');
+  const [viewportHeight, setViewportHeight] = useState('100dvh');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (window.visualViewport) {
+        const newViewportHeight: any = window.visualViewport.height;
+        setViewportHeight(newViewportHeight);
+
+        if (newViewportHeight < window.innerHeight) {
+          setKeyboardHeight(window.innerHeight - newViewportHeight);
+        } else {
+          setKeyboardHeight(0);
+        }
+      }
+    };
+
+    window.addEventListener('resize', updateHeight);
+    updateHeight();
+
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, []);
 
   const formatTime = (date: Date): string => {
     const hours = date.getHours();
@@ -60,6 +85,8 @@ const ChatPage: React.FC = () => {
 
     setInput('');
 
+    inputRef.current?.focus();
+
     setTimeout(() => {
       const responseMessage: Message = {
         text: "I'm doing great, thanks!",
@@ -74,8 +101,24 @@ const ChatPage: React.FC = () => {
     }, 1000);
   };
 
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      if (keyboardHeight === 0) {
+        chatContainerRef.current.scrollTop =
+          chatContainerRef.current.scrollHeight;
+      } else {
+        chatContainerRef.current.scrollTop =
+          chatContainerRef.current.scrollHeight - keyboardHeight;
+      }
+    }
+  }, [messages, keyboardHeight]);
+
   return (
-    <div className="mx-auto flex h-screen w-full max-w-3xl flex-col bg-[#111b21]">
+    <div
+      className="mx-auto flex w-full max-w-3xl flex-col overflow-hidden bg-[#111b21]"
+      style={{ height: viewportHeight }}
+      ref={chatContainerRef}
+    >
       <div className="flex items-center justify-between bg-[#202c33] p-2">
         <div className="flex items-center">
           <button onClick={() => router.back()} className="text-white">
@@ -113,7 +156,7 @@ const ChatPage: React.FC = () => {
                 msg.sender === 'me' ? 'bg-[#005c4b]' : 'bg-[#202c33]'
               }`}
             >
-              {msg.text}
+              {msg.text} {keyboardHeight}
               <div className="mt-1 text-right text-xs text-[#8696a0]">
                 {msg.time}
               </div>
@@ -129,6 +172,7 @@ const ChatPage: React.FC = () => {
           </button>
 
           <input
+            ref={inputRef}
             type="text"
             placeholder="Type a message"
             value={input}
