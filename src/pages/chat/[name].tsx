@@ -1,6 +1,17 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable tailwindcss/migration-from-tailwind-2 */
 /* eslint-disable import/no-extraneous-dependencies */
-import { ArrowLeft, Send, Smile } from 'lucide-react';
+import {
+  ArrowLeft,
+  Camera,
+  Mic,
+  MoreVertical,
+  Paperclip,
+  Phone,
+  Send,
+  Smile,
+  Video,
+} from 'lucide-react';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
@@ -64,49 +75,91 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto flex h-screen min-h-screen w-full max-w-3xl flex-col bg-[#202c33]">
-      <div className="flex items-center gap-4 bg-[#2a3942] p-4">
-        <button onClick={() => router.back()} className="text-[#005d4b]">
-          <ArrowLeft className="h-6 w-6" />
-        </button>
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-gray-700"></div>
-          <h1 className="text-lg font-semibold text-white">{name}</h1>
+    <div className="mx-auto flex h-screen w-full max-w-3xl flex-col bg-[#111b21]">
+      <div className="flex items-center justify-between bg-[#202c33] p-2">
+        <div className="flex items-center">
+          <button onClick={() => router.back()} className="text-white">
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          <div className="h-10 w-10 overflow-hidden rounded-full">
+            <img
+              src={
+                'https://media.istockphoto.com/id/1399565382/photo/young-happy-mixed-race-businessman-standing-with-his-arms-crossed-working-alone-in-an-office.jpg?s=612x612&w=0&k=20&c=buXwOYjA_tjt2O3-kcSKqkTp2lxKWJJ_Ttx2PhYe3VM='
+              }
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <h1 className="ml-2 text-lg font-semibold text-white first-letter:uppercase">
+            {name}
+          </h1>
+        </div>
+        <div className="flex items-center gap-4 text-[#aebac1]">
+          <Video className="h-5 w-5" />
+          <Phone className="h-5 w-5" />
+          <MoreVertical className="h-5 w-5" />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-4">
+
+      <div className="flex-1 overflow-y-auto bg-[#0b141a] p-4">
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`mb-4 flex ${
+            className={`mb-2 flex ${
               msg.sender === 'me' ? 'justify-end' : 'justify-start'
             }`}
           >
             <div
-              className={`max-w-xs rounded-lg px-3 py-1 text-white ${
-                msg.sender === 'me' ? 'bg-[#005d4b]' : 'bg-[#2a3942]'
+              className={`max-w-xs rounded-lg px-4 py-2 text-sm text-white ${
+                msg.sender === 'me' ? 'bg-[#005c4b]' : 'bg-[#202c33]'
               }`}
             >
               {msg.text}
-              <div className="text-xs text-[#8696a0]">{msg.time}</div>{' '}
+              <div className="mt-1 text-right text-xs text-[#8696a0]">
+                {msg.time}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center gap-2 border-t border-[#2a3942] bg-[#232e35] p-4">
-        <button className="text-[#aebac1]">
-          <Smile className="h-6 w-6" />
-        </button>
-        <input
-          type="text"
-          placeholder="Type a message"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 rounded-lg bg-[#2a3942] p-2 text-white placeholder-[#8696a0] focus:outline-none"
-        />
-        <button onClick={sendMessage} className="text-[#005d4b]">
-          <Send className="h-6 w-6" />
+      <div className="flex w-full">
+        <div className="m-2 flex w-full items-center gap-2 rounded-3xl bg-[#2a3942] p-2 px-3">
+          <button className="text-[#aebac1]">
+            <Smile className="h-6 w-6" />
+          </button>
+
+          <input
+            type="text"
+            placeholder="Type a message"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && input.trim()) {
+                sendMessage();
+              }
+            }}
+            className="w-full rounded-3xl bg-[#2a3942] p-1 text-white placeholder-[#8696a0] focus:outline-none"
+          />
+
+          <div className="flex items-center gap-2">
+            <button className="text-[#aebac1]">
+              <Paperclip className="h-6 w-6" />
+            </button>
+            <button className="text-[#aebac1]">
+              <Camera className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+
+        <button
+          onClick={sendMessage}
+          className="my-2 mr-2 flex items-center justify-center rounded-full bg-[#005c4b] px-3 text-white"
+        >
+          {input.trim() ? (
+            <Send className="h-6 w-6" />
+          ) : (
+            <Mic className="h-6 w-6" />
+          )}
         </button>
       </div>
     </div>
